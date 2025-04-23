@@ -28,19 +28,45 @@ print(f"passwd = {passwd}\n")
 匿名加工情報制度を基におこなう
 URL: https://www.ppc.go.jp/personalinfo/tokumeikakouInfo/
 """
-# マスキング用リスト
+# 各要素のマスキング用リスト
 m_name, m_tell, m_mail, m_passwd = [], [], [], []
 
 # 氏名：すべてマスキング
 for i in range(len(name)):
     m_name.append(len(name[i]) * '*')
 
-print(f"n_name = {m_name}")
-
 # 電話番号：下4桁以外マスキング
+for row in tell:
+    # 前方桁
+    cnt_before = 0
+    for item in row:
+        # 数字部分を数える
+        if item == '-':
+            break
+        cnt_before += 1
+    # 中央桁
+    cnt_middle = 0
+    # 前方桁以降から数える(+1はハイフン1個)
+    for item in row[cnt_before+1:]:
+        # 数字部分を数える
+        if item == '-':
+            break
+        cnt_middle += 1
+    # 後方桁
+    cnt_after = cnt_before + cnt_middle
+    # 中央桁以降から数える(+1はハイフン1個)
+    for item in row[cnt_after+1:]:
+        if item == '-':
+            break
+        cnt_after += 1
+    # ハイフン2個分、cnt_afterに追加して後方桁を出力している
+    m_tell.append(cnt_before * '*' + '-' + cnt_middle * '*' + '-' + row[cnt_after+2:])
 
 
 
+
+print(f"m_name = {m_name}")
+print(f"m_tell = {m_tell}")
 # メール：5文字目以降マスキング
 
 
