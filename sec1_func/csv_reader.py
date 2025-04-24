@@ -13,5 +13,5 @@ def read(filepath, array1, array2, array3, array4):
             array2.append(row[1])
             array3.append(row[2])
             array4.append(row[3])
-
+    # 読み込んだデータを返却
     return [array1, array2, array3, array4]

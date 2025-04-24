@@ -1,3 +1,9 @@
+"""
+氏名、電話、メールについてマスキングを行う
+匿名加工情報制度を基におこなう
+URL: https://www.ppc.go.jp/personalinfo/tokumeikakouInfo/
+"""
+
 # name_mask関数：氏名をマスキングする
 def name_mask(array, m_array):
     # 氏名：すべてマスキング
@@ -31,7 +37,8 @@ def tell_mask(array, m_array):
             cnt_after += 1
         # ハイフン2個分、cnt_afterに追加して後方桁を出力している
         m_array.append(cnt_before * '*' + '-' + cnt_middle * '*' + '-' + row[cnt_after+2:])
-
+# mail_mask関数：メールアドレスをマスキングする
 def mail_mask(array, m_array):
     for row in array:
+        # 先頭4文字および'@'を残し、あとは'*'でマスキング
         m_array.append(row[:4] + len(row[4:].partition('@')[0]) * '*' + '@' + len(row.partition('@')[2]) * '*')
