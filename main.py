@@ -1,75 +1,37 @@
-import csv
+import sec1_func.output
+import sec1_func.csv_reader
+import sec1_func.masking
+import sec1_func.hashing
+import sec1_func.output
+# 各オブジェクト変数を生成
+out = sec1_func.output
+reader = sec1_func.csv_reader
+mask = sec1_func.masking
+h_sha = sec1_func.hashing
 # 各要素のリスト
-name, tell, mail, passwd = [], [], [], [] # パスワード
-"""
-csvファイルを読み込む際、エンコーディングを行う
-BOM(unicodeによる不可視文字)を避けるため、「utf-8-sig」でエンコーディング
-"""
+name, tell, mail, passwd = [], [], [], []   # 元データ
+m_name, m_tell, m_mail = [], [], []         # マスキング
+h_passwd = []                               # ハッシュ化
 # csvファイルを読み込んで各リストに追加
-# with文は処理終了時にcloseメソッドを自動的に実行してくれる
-with open('information.csv', encoding='utf-8-sig') as info:
-    # 区切り文字を指定する(今回「,」)
-    reader = csv.reader(info, delimiter=',')
-    # リストに追加
-    for row in reader:
-        name.append(row[0])
-        tell.append(row[1])
-        mail.append(row[2])
-        passwd.append(row[3])
-
-# 確認用
-print(f"name   = {name}")
-print(f"tell   = {tell}")
-print(f"mail   = {mail}")
-print(f"passwd = {passwd}\n")
-
+name, tell, mail, passwd = reader.read('information.csv', name, tell, mail, passwd)
 """
 氏名、電話、メールについてマスキングを行う
 匿名加工情報制度を基におこなう
 URL: https://www.ppc.go.jp/personalinfo/tokumeikakouInfo/
 """
-# 各要素のマスキング用リスト
-m_name, m_tell, m_mail, m_passwd = [], [], [], []
-
 # 氏名：すべてマスキング
-for i in range(len(name)):
-    m_name.append(len(name[i]) * '*')
-
+mask.name_mask(name, m_name)
 # 電話番号：下4桁以外マスキング
-for row in tell:
-    # 前方桁
-    cnt_before = 0
-    for item in row:
-        # 数字部分を数える
-        if item == '-':
-            break
-        cnt_before += 1
-    # 中央桁
-    cnt_middle = 0
-    # 前方桁以降から数える(+1はハイフン1個)
-    for item in row[cnt_before+1:]:
-        # 数字部分を数える
-        if item == '-':
-            break
-        cnt_middle += 1
-    # 後方桁
-    cnt_after = cnt_before + cnt_middle
-    # 中央桁以降から数える(+1はハイフン1個)
-    for item in row[cnt_after+1:]:
-        if item == '-':
-            break
-        cnt_after += 1
-    # ハイフン2個分、cnt_afterに追加して後方桁を出力している
-    m_tell.append(cnt_before * '*' + '-' + cnt_middle * '*' + '-' + row[cnt_after+2:])
-
-
-
-
-print(f"m_name = {m_name}")
-print(f"m_tell = {m_tell}")
+mask.tell_mask(tell, m_tell)
 # メール：5文字目以降マスキング
-
-
-
-# パスワードのハッシュ化(今回「sha256」)
-
+mask.mail_mask(mail, m_mail)
+# 出力
+print("\nmasked!\n")
+out.output_array('name', m_name)
+out.output_array('tell', m_tell)
+out.output_array('mail', m_mail)
+# パスワードのハッシュ化(今回「sha256」およびソルトを用いる)
+salt = 'hello'
+h_sha.hashing(passwd, h_passwd, salt)
+print("hashed!\n")
+out.output_array('passwd', h_passwd)
